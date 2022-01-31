@@ -1,0 +1,26 @@
+:root {
+    --thumbnail-margin: 28px;
+}
+
+.next-btn {
+    width: 30px;
+    height: 30px;
+}
+
+.thumbnail-row {
+    margin-bottom: var(--thumbnail-margin);
+}
+
+.thumbnail-wrapper {
+    margin-right: var(--thumbnail-margin);
+    height: 300px;
+    width: 300px;
+}
+
+.thumbnail-wrapper:last-child {
+    margin-right: 0;
+}
+
+.image-title {
+    max-width: 18rem;
+}
