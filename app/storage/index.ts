@@ -1,1 +1,1 @@
-export * from './storageWrapper';
+export * from './createStorageScope';

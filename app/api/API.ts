@@ -13,7 +13,7 @@ export class API<T> {
 
     get(date: string): Promise<T> {
         const params = new URLSearchParams({ api_key: this.#key, date });
-        return this.#fetcher(this.#createRequest('GET', this.#url + '?' + params.toString())).then(async (response) => {
+        return this.#fetcher(this.#createRequest('GET', `${this.#url}?${params.toString()}`)).then(async (response) => {
             const json = await response.json();
             if (response.status < 300) {
                 return json;

@@ -1,4 +1,4 @@
-export * from './Image';
+export * from './LoadableImage';
 export * from './BookmarkIcon';
 export * from './Card';
 export * from './Thumbnail';

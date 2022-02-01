@@ -1,6 +1,7 @@
 export function Spinner(): JSX.Element {
     return (
         <svg
+            data-testid="spinner"
             className="animate-spin h-5 w-5 currentColor"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

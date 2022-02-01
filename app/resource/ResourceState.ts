@@ -1,1 +1,1 @@
-export type ResourceState = 'ready' | 'loading' | 'error';
+export type ResourceState = 'idle' | 'loading' | 'error';

@@ -1,36 +1,63 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import type { LoaderFunction } from 'remix';
+import { json, redirect, useLoaderData, useNavigate, useTransition } from 'remix';
 
-import { savedStorageWrapper, useLoadApod } from '../apod';
-import { BookmarkIcon, Card, Error, Spinner } from '../components';
+import type { Apod } from '../apod';
+import { api, savedScopeStorage } from '../apod';
+import { BookmarkIcon, Card } from '../components';
+import { dateToString, getRandomDate } from '../date';
 
-export default function Index() {
-    const [key, setKey] = useState(Date.now());
-    const loadApod = useLoadApod(key);
+export const loader: LoaderFunction = async () => {
+    return api
+        .get(dateToString(getRandomDate()))
+        .then((data) => json(data))
+        .catch(() => redirect('/error'));
+};
+
+export default function Index(): JSX.Element {
+    const navigate = useNavigate();
+    const apod = useLoaderData<Apod>();
+    const transition = useTransition();
+
+    const [updateKey, setUpdateKey] = useState(Date.now());
+    const [isSaved, setIsSaved] = useState(false);
+
+    useEffect(() => {
+        setIsSaved(savedScopeStorage(localStorage).exists(apod.url));
+    }, [apod, updateKey]);
 
     return (
         <div>
-            {loadApod.state.state === 'ready' ? (
-                <Card imageSrc={loadApod.state.data.url} onNextClick={loadApod.load}>
-                    <div className={'flex justify-between items-center py-4 px-2'}>
-                        <div className={'mr-10 image-title'}>{loadApod.state.data.title}</div>
-                        <div className={'flex items-center'}>
-                            <button
-                                className={'cursor-default'}
-                                onClick={() => {
-                                    savedStorageWrapper(localStorage).toggle(loadApod.state.data!);
-                                    setKey(Date.now());
-                                }}
-                            >
-                                <BookmarkIcon isFilled={loadApod.isSaved} />
-                            </button>
+            <Card
+                alt={apod.explanation}
+                isLoading={transition.state === 'loading'}
+                mediaType={apod.media_type}
+                src={apod.url}
+                onNextClick={() => navigate('/', { replace: true })}
+            >
+                <div className={'flex justify-between items-center py-4 px-2'}>
+                    {transition.state === 'loading' ? (
+                        <div className="animate-pulse flex">
+                            <div className="rounded-full bg-slate-200 h-6 w-64" />
                         </div>
-                    </div>
-                </Card>
-            ) : loadApod.state.state === 'loading' ? (
-                <Spinner />
-            ) : (
-                <Error title={"Couldn't fetch a data."} onRetry={loadApod.reload} />
-            )}
+                    ) : (
+                        <>
+                            <div className={'mr-10 image-title'}>{apod.title}</div>
+                            <div className={'flex items-center'}>
+                                <button
+                                    className={'cursor-default'}
+                                    onClick={() => {
+                                        savedScopeStorage(localStorage).toggle(apod);
+                                        setUpdateKey(Date.now());
+                                    }}
+                                >
+                                    <BookmarkIcon isFilled={isSaved} />
+                                </button>
+                            </div>
+                        </>
+                    )}
+                </div>
+            </Card>
         </div>
     );
 }

@@ -5,27 +5,23 @@ import type { ResourceState } from '../resource';
 import { Error } from './Error';
 import { Spinner } from './Spinner';
 
-interface ImageProps {
+export interface LoadableImageProps {
     src: string;
-    size: 'S' | 'L';
+    alt: string;
+    initialImageState: ResourceState;
     children?: JSX.Element;
     rounded?: 'top' | 'full';
 }
 
-export function LoadableImage(props: ImageProps): JSX.Element {
-    const [imageState, setImageState] = useState<ResourceState>('loading');
+export function LoadableImage(props: LoadableImageProps): JSX.Element {
+    const [imageState, setImageState] = useState<ResourceState>(props.initialImageState);
     const imageContainerRef = useRef<HTMLDivElement>(null);
     const imageRef = useRef<HTMLImageElement>();
-    const [key, setKey] = useState(Date.now());
+    const [retryKey, setRetryKey] = useState(Date.now());
 
-    function onLoad() {
-        setImageState('ready');
-        if (imageRef.current && imageContainerRef.current) imageContainerRef.current.appendChild(imageRef.current);
-    }
-
-    function onError() {
-        setImageState('error');
-    }
+    useEffect(() => {
+        setImageState(props.initialImageState);
+    }, [props.initialImageState]);
 
     useEffect(() => {
         setImageState('loading');
@@ -35,18 +31,29 @@ export function LoadableImage(props: ImageProps): JSX.Element {
             props.rounded === 'top' ? ' rounded-t-md' : ' rounded-md'
         }`;
         image.src = props.src;
+        image.alt = props.alt;
         image.addEventListener('load', onLoad);
         image.addEventListener('error', onError);
         return () => {
             image.removeEventListener('load', onLoad);
             image.removeEventListener('error', onError);
+            image.remove();
         };
-    }, [props.src, key]);
+    }, [props.src, retryKey]);
 
     return (
         <>
-            {imageState === 'error' ? null : (
+            {imageState === 'error' ? (
                 <div
+                    className={
+                        'h-full w-full rounded-md text-slate-400 bg-slate-50 flex items-center justify-center flex-col'
+                    }
+                >
+                    <Error title={"Couldn't load a image."} onRetry={() => setRetryKey(Date.now())} />
+                </div>
+            ) : (
+                <div
+                    data-testid={'image-container'}
                     className={`h-full w-full rounded-md relative ${imageState === 'loading' ? 'hidden' : ''}`}
                     ref={imageContainerRef}
                 />
@@ -55,17 +62,18 @@ export function LoadableImage(props: ImageProps): JSX.Element {
                 <div className={'h-full w-full rounded-md text-slate-400 bg-slate-50 flex items-center justify-center'}>
                     <Spinner />
                 </div>
-            ) : imageState === 'error' ? (
-                <div
-                    className={
-                        'h-full w-full rounded-md text-slate-400 bg-slate-50 flex items-center justify-center flex-col'
-                    }
-                >
-                    <Error title={"Couldn't load image"} onRetry={() => setKey(Date.now())} />
-                </div>
             ) : (
                 props.children
             )}
         </>
     );
+
+    function onLoad() {
+        setImageState('idle');
+        if (imageRef.current && imageContainerRef.current) imageContainerRef.current.appendChild(imageRef.current);
+    }
+
+    function onError() {
+        setImageState('error');
+    }
 }

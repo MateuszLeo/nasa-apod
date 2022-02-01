@@ -1,7 +1,12 @@
-export default function Error() {
+import { useNavigate } from 'remix';
+
+import { Error } from '../components';
+
+export default function Err(): JSX.Element {
+    const navigate = useNavigate();
     return (
         <div>
-            <h1>Error</h1>
+            <Error title={"Couldn't fetch a data."} onRetry={() => navigate('/', { replace: true })} />
         </div>
     );
 }

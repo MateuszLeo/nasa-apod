@@ -1,9 +1,12 @@
-import { LoadableImage } from './Image';
+import type { MediaDisplayProps } from './MediaDisplay';
+import { MediaDisplay } from './MediaDisplay';
 
 interface ThumbnailProps {
     src: string;
+    alt: string;
+    mediaType: MediaDisplayProps['type'];
 }
 
 export function Thumbnail(props: ThumbnailProps): JSX.Element {
-    return <LoadableImage size={'S'} src={props.src} />;
+    return <MediaDisplay initialImageState={'loading'} alt={props.alt} src={props.src} type={props.mediaType} />;
 }
