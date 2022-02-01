@@ -14,29 +14,15 @@ export class API<T> {
     get(date: string): Promise<T> {
         const params = new URLSearchParams({ api_key: this.#key, date });
         return this.#fetcher(this.#createRequest('GET', this.#url + '?' + params.toString())).then(async (response) => {
+            const json = await response.json();
             if (response.status < 300) {
-                return response.json();
+                return json;
             }
-            if (response.status > 499) {
-                throw new ServerError();
-            }
-            throw new ClientError();
+            throw new Error(json.msg);
         });
     }
 
     #createRequest(method: 'GET', url: string) {
         return new Request(url, { method });
-    }
-}
-
-class ServerError extends Error {
-    constructor() {
-        super();
-    }
-}
-
-class ClientError extends Error {
-    constructor() {
-        super();
     }
 }

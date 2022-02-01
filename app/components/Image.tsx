@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
+import type { ResourceState } from '../resource';
+
 import { Error } from './Error';
 import { Spinner } from './Spinner';
 
@@ -10,10 +12,8 @@ interface ImageProps {
     rounded?: 'top' | 'full';
 }
 
-type ImageState = 'ready' | 'loading' | 'error';
-
 export function LoadableImage(props: ImageProps): JSX.Element {
-    const [imageState, setImageState] = useState<ImageState>('loading');
+    const [imageState, setImageState] = useState<ResourceState>('loading');
     const imageContainerRef = useRef<HTMLDivElement>(null);
     const imageRef = useRef<HTMLImageElement>();
     const [key, setKey] = useState(Date.now());
@@ -61,7 +61,7 @@ export function LoadableImage(props: ImageProps): JSX.Element {
                         'h-full w-full rounded-md text-slate-400 bg-slate-50 flex items-center justify-center flex-col'
                     }
                 >
-                    <Error title={"Couldn't load image"} onRetry={() => setKey(Date.now)} />
+                    <Error title={"Couldn't load image"} onRetry={() => setKey(Date.now())} />
                 </div>
             ) : (
                 props.children

@@ -24,7 +24,7 @@ export function Error(props: ErrorProps): JSX.Element {
                     />
                 </svg>
             </div>
-            <div className={'mb-5'}>{props.title}</div>
+            <div className={'mb-2'}>{props.title}</div>
             <Button onClick={props.onRetry}>Retry</Button>
         </div>
     );

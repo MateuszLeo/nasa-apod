@@ -10,7 +10,7 @@ export default function Index() {
     return (
         <div>
             {loadApod.state.state === 'ready' ? (
-                <Card imageSrc={loadApod.state.data.url} onNextClick={() => void 0}>
+                <Card imageSrc={loadApod.state.data.url} onNextClick={loadApod.load}>
                     <div className={'flex justify-between items-center py-4 px-2'}>
                         <div className={'mr-10 image-title'}>{loadApod.state.data.title}</div>
                         <div className={'flex items-center'}>
@@ -29,7 +29,7 @@ export default function Index() {
             ) : loadApod.state.state === 'loading' ? (
                 <Spinner />
             ) : (
-                <Error title={"Couldn't fetch a data."} onRetry={loadApod.load} />
+                <Error title={"Couldn't fetch a data."} onRetry={loadApod.reload} />
             )}
         </div>
     );
